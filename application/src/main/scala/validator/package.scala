@@ -1,12 +1,29 @@
+import cats.data.ValidatedNel
 import mymacro.WithinContext
 
-package object validator {
-  implicit class ValidationResultOps[T](val v: Either[validation.ValidationFailed, T])
-    extends WithinContext {
-    override type Self = Either[validation.ValidationFailed, T]
+import scala.util.{Success, Try, Failure}
 
-    override def within(field: String): Either[validation.ValidationFailed, T] =
-      v.left.map(_.within(field))
+package object validator {
+  implicit class ValidationResultOps[T](val v: ValidationResult[T])
+    extends WithinContext {
+    override type Self = ValidationResult[T]
+
+    override def within(field: String): ValidationResult[T] =
+      v.leftMap(_.map(_.within(field)))
   }
 
+  type ValidationResult[A] = ValidatedNel[validation.ValidationFailed, A]
+
+  implicit class TryOps[T](v: Try[T]) {
+    import cats.implicits._
+
+    def asValidationResult[R](catchException: Throwable => R): ValidatedNel[R, T] = {
+      v match {
+        case Failure(exception) =>
+          catchException(exception).invalidNel
+        case Success(value) =>
+          value.validNel
+      }
+    }
+  }
 }

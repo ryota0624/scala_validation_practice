@@ -9,7 +9,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 class UserCreationParamValidatorSpec
     extends AnyWordSpecLike
     with TableDrivenPropertyChecks {
-  val params = Table[String, UserCreationParam, Option[String]](
+  val params = Table[String, UserCreationParam, Seq[String]](
     ("statement", "param", "expectedResult"),
     (
       "ok",
@@ -18,7 +18,7 @@ class UserCreationParamValidatorSpec
         UserCreationParam.Color(200, 200, 200),
         UserCreationParam.Color(100, 200, 100)
       ),
-      None
+      Nil
     ),
     (
       "failure in favorite color green",
@@ -27,7 +27,7 @@ class UserCreationParamValidatorSpec
         UserCreationParam.Color(200, 200, 300),
         UserCreationParam.Color(100, 200, 100)
       ),
-      Some("requirement failed: number should be smaller than 255. at favoriteColor.blue. not satisfied for ColorElement$ requirement")
+      Seq("requirement failed: number should be smaller than 255. at favoriteColor.blue. not satisfied for ColorElement$")
     )
   )
 
@@ -35,15 +35,16 @@ class UserCreationParamValidatorSpec
     (
         statement: String,
         param: UserCreationParam,
-        expectedResult: Option[String]
+        expectedResult: Seq[String]
     ) =>
       s"result should be $statement" in {
         val result = UserCreationParamValidator(param)()
         expectedResult match {
-          case Some(value) =>
-            result.left.value.description shouldBe value
-          case None =>
-            result.isRight shouldBe true
+          case Nil =>
+            result.toEither.isRight shouldBe true
+          case _ =>
+            result.toEither.left.value.map(_.description).toList shouldBe expectedResult
+
         }
       }
 
