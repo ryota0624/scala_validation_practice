@@ -20,7 +20,9 @@ lazy val application = (project in file("application"))
     ),
     Compile / scalacOptions += "-Ymacro-annotations",
     libraryDependencies ++= Seq(
-      "com.chuusai" %% "shapeless" % "2.3.3"
+      "com.chuusai" %% "shapeless" % "2.3.3",
+      "org.scalatest" %% "scalatest" % "3.2.2" % Test,
+      "org.scalatestplus" %% "scalacheck-1-14" % "3.2.2.0" % Test
     )
   )
 
