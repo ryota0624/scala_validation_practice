@@ -27,7 +27,23 @@ class UserCreationParamValidatorSpec
         UserCreationParam.Color(200, 200, 300),
         UserCreationParam.Color(100, 200, 100)
       ),
-      Seq("requirement failed: number should be smaller than 255. at favoriteColor.blue. not satisfied for ColorElement$")
+      Seq(
+        "requirement failed: number should be smaller than 255. at favoriteColor.blue. not satisfied for ColorElement$"
+      )
+    ),
+    (
+      "failure in favorite color green with blue, and un favorite red, and age",
+      UserCreationParam(
+        -1,
+        UserCreationParam.Color(200, -1, 300),
+        UserCreationParam.Color(1000, 200, 100)
+      ),
+      Seq(
+        "requirement failed: number should be positive. at age. not satisfied for Age$",
+        "requirement failed: number should be smaller than 255. at favoriteColor.blue. not satisfied for ColorElement$",
+        "requirement failed: number should be greeter than 0. at favoriteColor.green. not satisfied for ColorElement$",
+        "requirement failed: number should be smaller than 255. at unFavoriteColor.red. not satisfied for ColorElement$"
+      ),
     )
   )
 
@@ -43,7 +59,9 @@ class UserCreationParamValidatorSpec
           case Nil =>
             result.toEither.isRight shouldBe true
           case _ =>
-            result.toEither.left.value.map(_.description).toList shouldBe expectedResult
+            result.toEither.left.value
+              .map(_.description)
+              .toList shouldBe expectedResult
 
         }
       }
