@@ -6,9 +6,10 @@ import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpecLike
 
-class UserCreationParamValidatorSpec
+trait UserCreationParamValidatorImplSpec
     extends AnyWordSpecLike
     with TableDrivenPropertyChecks {
+  def createValidator: (UserCreationParam) => UserCreationParamValidator
   val params = Table[String, UserCreationParam, Seq[String]](
     ("statement", "param", "expectedResult"),
     (
@@ -54,7 +55,7 @@ class UserCreationParamValidatorSpec
         expectedResult: Seq[String]
     ) =>
       s"result should be $statement" in {
-        val result = UserCreationParamValidator(param)()
+        val result = createValidator(param).apply()
         expectedResult match {
           case Nil =>
             result.toEither.isRight shouldBe true

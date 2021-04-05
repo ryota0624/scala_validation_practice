@@ -1,5 +1,7 @@
 package data.user
 
+import shapeless.LabelledGeneric
+
 case class User(
     age: Age,
     favoriteColor: Color,
@@ -17,6 +19,7 @@ object User {
   }
 
 
+  val userG = LabelledGeneric[User]
 
 }
 

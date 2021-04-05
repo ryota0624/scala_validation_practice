@@ -8,8 +8,10 @@ import validation.ValidationFailed
 
 import scala.util.Try
 
-case class UserCreationParamValidator(param: UserCreationParam)
-    extends (() => ValidationResult[User]) {
+trait UserCreationParamValidator extends (() => ValidationResult[User])
+
+case class UserCreationParamValidatorImpl1(param: UserCreationParam)
+    extends UserCreationParamValidator {
   @within private def favoriteColor = ColorValidator(param.favoriteColor)()
   @within private def unFavoriteColor = ColorValidator(param.unFavoriteColor)()
   @within private def age = AgeValidator(param.age)
