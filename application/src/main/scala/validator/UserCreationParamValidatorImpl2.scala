@@ -10,7 +10,7 @@ object UserCreationParamValidatorImpl2
   override def apply(param: UserCreationParam): ValidationResult[User] =
     (
       fieldOf(param.age)(AgeValidator),
-      fieldOf(param.favoriteColor)(ColorValidator),
+      fieldOf(param.favoriteColor)(colorValidator),
       fieldOf(param.unFavoriteColor)(ColorValidator)
     ) mapN User.apply
 
@@ -23,6 +23,14 @@ object UserCreationParamValidatorImpl2
         fieldOf(color.blue)(ColorElementValidator),
         fieldOf(color.green)(ColorElementValidator)
       ).mapN(Color)
+  }
+
+  def colorValidator: Validator[UserCreationParam.Color, Color] = { color =>
+    (
+      fieldOf(color.red)(ColorElementValidator),
+      fieldOf(color.blue)(ColorElementValidator),
+      fieldOf(color.green)(ColorElementValidator)
+    ).mapN(Color)
   }
 
 }
