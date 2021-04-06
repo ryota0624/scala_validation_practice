@@ -3,8 +3,10 @@ package field
 trait Field[T] {
   protected def name: String
   protected def value: T
-  def apply[R](fn: (String, T) => R): R = fn(name, value)
-  def apply[R](fn: T => String => R): R = fn(value)(name)
+  def apply[R <: String => R](fn1: T => R): R = {
+    val ret = fn1(value)
+    ret.apply(name)
+  }
 
   def tuple: (String, T) = (name, value)
 }

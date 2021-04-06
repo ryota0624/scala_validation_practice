@@ -5,7 +5,7 @@ import scala.util.{Failure, Success, Try}
 
 package object validator {
   implicit class ValidationResultOps[T](val v: ValidationResult[T])
-      extends WithinContext {
+      extends WithinContext with (String => ValidationResult[T]) {
     override type Self = ValidationResult[T]
 
     override def within(field: String): ValidationResult[T] =

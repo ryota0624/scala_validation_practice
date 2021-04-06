@@ -34,14 +34,16 @@ case class ColorValidator(color: UserCreationParam.Color)
     (red, blue, green).mapN(Color)
 }
 
-object ColorElementValidator extends (Int => ValidationResult[ColorElement]) {
+trait Validator[I, O] extends (I => ValidationResult[O])
+
+object ColorElementValidator extends Validator[Int, ColorElement] {
   override def apply(v1: Int): ValidationResult[ColorElement] =
     Try {
       ColorElement(v1)
     } asValidationResult (ValidationFailed(_, ColorElement.getClass))
 }
 
-object AgeValidator extends (Int => ValidationResult[Age]) {
+object AgeValidator extends Validator[Int, Age] {
   override def apply(v1: Int): ValidationResult[Age] =
     Try {
       Age(v1)
