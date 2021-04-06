@@ -1,10 +1,13 @@
 package field
 
+import validator.Validator
+
 trait Field[T] {
   protected def name: String
   protected def value: T
-  def apply[R <: String => R](fn1: T => R): R = {
-    val ret = fn1(value)
+  import Validator._
+  def apply[O](validator: Validator[T, O]): ValidationResult[O] = {
+    val ret = validator(value)
     ret.apply(name)
   }
 

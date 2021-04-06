@@ -3,23 +3,18 @@ package validator
 import cats.implicits._
 import data.user.User.UserCreationParam
 import data.user.{Color, User}
-import field.FieldMacro
 
-case class UserCreationParamValidatorImpl2(param: UserCreationParam)
+object UserCreationParamValidatorImpl2
     extends UserCreationParamValidator
-    with FieldMacro {
-  import UserCreationParamValidatorImpl2._
-  override def apply(): ValidationResult[User] =
+    with Validator[UserCreationParam, User] {
+  override def apply(param: UserCreationParam): ValidationResult[User] =
     (
       fieldOf(param.age)(AgeValidator),
       fieldOf(param.favoriteColor)(ColorValidator),
       fieldOf(param.unFavoriteColor)(ColorValidator)
     ) mapN User.apply
-}
 
-object UserCreationParamValidatorImpl2 extends FieldMacro {
-  object ColorValidator
-      extends (UserCreationParam.Color => ValidationResult[Color]) {
+  object ColorValidator extends Validator[UserCreationParam.Color, Color] {
     override def apply(
         color: UserCreationParam.Color
     ): ValidationResult[Color] =
@@ -29,4 +24,5 @@ object UserCreationParamValidatorImpl2 extends FieldMacro {
         fieldOf(color.green)(ColorElementValidator)
       ).mapN(Color)
   }
+
 }

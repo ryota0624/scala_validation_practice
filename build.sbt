@@ -37,6 +37,7 @@ lazy val macroSub = (project in file("macro"))
     Compile / scalacOptions += "-Ymacro-annotations",
     libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.10",
     libraryDependencies += "com.github.dwickern" %% "scala-nameof" % "3.0.0",
+    libraryDependencies += "org.typelevel" %% "cats-core" % "2.4.2",
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.2" % Test,
     scalacOptions ++= Seq(
       "-Ymacro-annotations",

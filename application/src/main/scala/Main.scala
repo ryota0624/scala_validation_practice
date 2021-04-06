@@ -9,7 +9,7 @@ object Main extends App {
   val faiUserCreationParam = UserCreationParam(24, UserCreationParam.Color(300, 200, 200), UserCreationParam.Color(100, 200, 100))
 
 
-  val user: User = UserCreationParamValidatorImpl1(okUserCreationParam).apply().getOrElse(sys.error("fail"))
+  val user: User = UserCreationParamValidatorImpl1(okUserCreationParam).getOrElse(sys.error("fail"))
   val userList = User.userG.to(user)
 
 

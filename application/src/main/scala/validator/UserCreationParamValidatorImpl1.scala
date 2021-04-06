@@ -8,20 +8,21 @@ import validation.ValidationFailed
 
 import scala.util.Try
 
-trait UserCreationParamValidator extends (() => ValidationResult[User])
+trait UserCreationParamValidator extends Validator[UserCreationParam, User]
 
-case class UserCreationParamValidatorImpl1(param: UserCreationParam)
+object UserCreationParamValidatorImpl1
     extends UserCreationParamValidator {
-  @within private def favoriteColor = ColorValidator(param.favoriteColor)()
-  @within private def unFavoriteColor = ColorValidator(param.unFavoriteColor)()
-  @within private def age = AgeValidator(param.age)
 
-  override def apply(): ValidationResult[User] =
+  override def apply(param: UserCreationParam): ValidationResult[User] = {
+    @within def favoriteColor = ColorValidator(param.favoriteColor)()
+    @within def unFavoriteColor = ColorValidator(param.unFavoriteColor)()
+    @within def age = AgeValidator(param.age)
     (
       age,
       favoriteColor,
       unFavoriteColor
     ) mapN User.apply
+  }
 }
 
 case class ColorValidator(color: UserCreationParam.Color)
@@ -33,8 +34,6 @@ case class ColorValidator(color: UserCreationParam.Color)
   override def apply(): ValidationResult[Color] =
     (red, blue, green).mapN(Color)
 }
-
-trait Validator[I, O] extends (I => ValidationResult[O])
 
 object ColorElementValidator extends Validator[Int, ColorElement] {
   override def apply(v1: Int): ValidationResult[ColorElement] =
