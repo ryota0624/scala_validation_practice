@@ -4,6 +4,9 @@ import mymacro.WithinContext
 import scala.util.{Failure, Success, Try}
 
 package object validator {
+  def main(args: Array[String]): Unit = {
+
+  }
   implicit class ValidationResultOps[T](val v: ValidationResult[T])
       extends WithinContext with (String => ValidationResult[T]) {
     override type Self = ValidationResult[T]
