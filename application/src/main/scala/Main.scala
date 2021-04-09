@@ -2,18 +2,25 @@ import data.user.User
 import data.user.User.UserCreationParam
 import shapeless.ops.record.Keys
 import shapeless.record.recordOps
-import validator.{AgeValidator, UserCreationParamValidatorImpl1}
+import validator.UserCreationParamValidatorImpl1
 
 import scala.util.{Failure, Success, Try}
 object Main extends App {
-  val okUserCreationParam = UserCreationParam(24, UserCreationParam.Color(200, 200, 200), UserCreationParam.Color(100, 200, 100))
+  val okUserCreationParam = UserCreationParam(
+    24,
+    UserCreationParam.Color(200, 200, 200),
+    UserCreationParam.Color(100, 200, 100)
+  )
 
-  val faiUserCreationParam = UserCreationParam(24, UserCreationParam.Color(300, 200, 200), UserCreationParam.Color(100, 200, 100))
+  val faiUserCreationParam = UserCreationParam(
+    24,
+    UserCreationParam.Color(300, 200, 200),
+    UserCreationParam.Color(100, 200, 100)
+  )
 
-
-  val user: User = UserCreationParamValidatorImpl1(okUserCreationParam).getOrElse(sys.error("fail"))
+  val user: User = UserCreationParamValidatorImpl1(okUserCreationParam)
+    .getOrElse(sys.error("fail"))
   val userList = User.userG.to(user)
-
 
   def validateAge() = {
 //    val symbol = Symbol("age")
@@ -33,9 +40,11 @@ object Sample {
   class Age private (private val number: Int) {
     require(number >= 0, "年齢は0以上じゃないとあかんな")
   }
-  case class ValidationFailure(message: String) {
-    def addMessage(msg: String): String = msg ++ ":" ++ message
+  case class ValidationFailure(message: String, fields: Seq[String] = Nil) {
+    def occurredOn(field: String) = copy(fields = fields :+ field)
   }
+
+  def fieldOf[T](field: => T): (T, String) = ???
 
   object Age {
     def validate(n: Int): Either[ValidationFailure, Age] = {
@@ -48,12 +57,49 @@ object Sample {
     }
   }
 
+  implicit class Tuple2Ops[F, S](tup: (F, S)) {
+    def applyAndJoin[F2, S2](func1: (F => F2))(
+        func2: (F2 => S => S2)
+    ): S2 = {
+      func2(func1(tup._1))(tup._2)
+    }
+  }
+
+
+
+  // 前回はとにかくimplicitを使ってショートハンドを実現していきました。
+  // 今回まず型の整理、お型付けから始めていきます。
+  type ValidationResult[T] = Either[ValidationFailure, T]
+  type Validator[I, O] = I => ValidationResult[O]
+
+  implicit class ValidationResultOps[T](e: ValidationResult[T]) {
+    def occurredOn(field: String): ValidationResult[T] = {
+      e.left.map(_.occurredOn(field))
+    }
+  }
+
+  case class Field[V](value: V, name: String) {
+    def validate[O](
+        validator: Validator[V, O]
+    ): ValidationResult[O] =
+      validator(value).occurredOn(name)
+  }
+
   def main(args: Array[String]) {
     val input = DoubleInput(age1 = -1, age2 = 10)
+//
+//    val (age1Value, fieldName) = fieldOf(input.age1)
+//    Age.validate(age1Value).left.map(_.occurredOn(fieldName))
+
+    fieldOf(input.age1).applyAndJoin(Age.validate) { result => fieldName =>
+      result.occurredOn(fieldName)
+    }
+
+    val a = fieldOf(input.age1).applyAndJoin(Age.validate)(_.occurredOn)
 
     val result = for {
-      age1 <- Age.validate(input.age1).left.map(_.addMessage("age1"))
-      age2 <- Age.validate(input.age2).left.map(_.addMessage("age2"))
+      age1 <- Age.validate(input.age1).left.map(_.occurredOn("age1"))
+      age2 <- Age.validate(input.age2).left.map(_.occurredOn("age2"))
     } yield (age1, age2)
     println(result)
   }
