@@ -1,5 +1,7 @@
 import data.user.User
 import data.user.User.UserCreationParam
+import field_of.Field.ValidationFailure
+import field_of.{Field, FieldOfMacro}
 import shapeless.ops.record.Keys
 import shapeless.record.recordOps
 import validator.UserCreationParamValidatorImpl1
@@ -40,9 +42,6 @@ object Sample {
   class Age private (private val number: Int) {
     require(number >= 0, "年齢は0以上じゃないとあかんな")
   }
-  case class ValidationFailure(message: String, fields: Seq[String] = Nil) {
-    def occurredOn(field: String) = copy(fields = fields :+ field)
-  }
 
   def fieldOf[T](field: => T): (T, String) = ???
 
@@ -66,41 +65,24 @@ object Sample {
   }
 
 
-
-  // 前回はとにかくimplicitを使ってショートハンドを実現していきました。
-  // 今回まず型の整理、お型付けから始めていきます。
-  type ValidationResult[T] = Either[ValidationFailure, T]
-  type Validator[I, O] = I => ValidationResult[O]
-
-  implicit class ValidationResultOps[T](e: ValidationResult[T]) {
-    def occurredOn(field: String): ValidationResult[T] = {
-      e.left.map(_.occurredOn(field))
-    }
-  }
-
-  case class Field[V](value: V, name: String) {
-    def validate[O](
-        validator: Validator[V, O]
-    ): ValidationResult[O] =
-      validator(value).occurredOn(name)
-  }
-
   def main(args: Array[String]) {
     val input = DoubleInput(age1 = -1, age2 = 10)
 //
 //    val (age1Value, fieldName) = fieldOf(input.age1)
 //    Age.validate(age1Value).left.map(_.occurredOn(fieldName))
 
-    fieldOf(input.age1).applyAndJoin(Age.validate) { result => fieldName =>
-      result.occurredOn(fieldName)
-    }
+//    fieldOf(input.age1).applyAndJoin(Age.validate) { result => fieldName =>
+//      result.occurredOn(fieldName)
+//    }
+//
+//    val a = fieldOf(input.age1).applyAndJoin(Age.validate)(_.occurredOn)
 
-    val a = fieldOf(input.age1).applyAndJoin(Age.validate)(_.occurredOn)
+    println(Field.of(input.age1).validate(Age.validate))
 
-    val result = for {
-      age1 <- Age.validate(input.age1).left.map(_.occurredOn("age1"))
-      age2 <- Age.validate(input.age2).left.map(_.occurredOn("age2"))
-    } yield (age1, age2)
-    println(result)
+//    val result = for {
+//      age1 <- Age.validate(input.age1).left.map(_.occurredOn("age1"))
+//      age2 <- Age.validate(input.age2).left.map(_.occurredOn("age2"))
+//    } yield (age1, age2)
+//    println(result)
   }
 }

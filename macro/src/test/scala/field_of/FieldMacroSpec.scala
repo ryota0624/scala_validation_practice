@@ -1,5 +1,6 @@
-package field
+package field_of
 
+import field.FieldMacro
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 case class Data(name: String)

@@ -9,7 +9,7 @@ lazy val scalaReflect = Def.setting {
 }
 
 lazy val application = (project in file("application"))
-  .dependsOn(macroSub)
+  .dependsOn(macroSub, fieldOfMacro)
   .settings(
     scalaVersion := "2.13.5",
     // other settings here
@@ -24,7 +24,26 @@ lazy val application = (project in file("application"))
       "org.scalatest" %% "scalatest" % "3.2.2" % Test,
       "org.scalatestplus" %% "scalacheck-1-14" % "3.2.2.0" % Test,
       "org.typelevel" %% "cats-core" % "2.4.2",
-      "com.chuusai" %% "shapeless" % "2.3.3"
+      "com.chuusai" %% "shapeless" % "2.3.3",
+      "com.github.dwickern" %% "scala-nameof" % "3.0.0"
+    )
+  )
+
+
+lazy val fieldOfMacro = (project in file("field_of_macro"))
+  .dependsOn(validationLibrary)
+  .settings(
+    scalaVersion := "2.13.5",
+    libraryDependencies += scalaReflect.value,
+    // other settings here
+    Compile / scalacOptions += "-Ymacro-annotations",
+    libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.10",
+    libraryDependencies += "com.github.dwickern" %% "scala-nameof" % "3.0.0",
+    libraryDependencies += "org.typelevel" %% "cats-core" % "2.4.2",
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.2" % Test,
+    scalacOptions ++= Seq(
+      "-Ymacro-annotations",
+      "-language:experimental.macros"
     )
   )
 

@@ -1,5 +1,6 @@
-package field
+package field_of
 
+import field.Field
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 
