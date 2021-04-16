@@ -1,11 +1,3 @@
 # scala_validation_practice
 
-validation対象のオブジェクトのどのフィールドvalidationが失敗したかわかるようにいい感じにしてみるとりくみ。
-
-macroでGO
-
-[動く様子](./application/src/test/scala/validator/UserCreationParamValidatorSpec.scala)
-
-[こうやって使うんだよ](./application/src/main/scala/validator/UserCreationParamValidator.scala)
-
-[こういう仕組みでフィールド名をつけているのさ](./macro/src/main/scala/mymacro/WithinContext.scala)
+[note上の記事](https://note.com/ryota_0624/n/ne6cd7343c133) で作ったコード
