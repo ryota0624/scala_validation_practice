@@ -1,49 +1,16 @@
-import data.user.User
-import data.user.User.UserCreationParam
+
 import field_of.Field.ValidationFailure
-import field_of.{Field, FieldOfMacro}
-import shapeless.ops.record.Keys
-import shapeless.record.recordOps
-import validator.UserCreationParamValidatorImpl1
+import field_of.Field
 
 import scala.util.{Failure, Success, Try}
-object Main extends App {
-  val okUserCreationParam = UserCreationParam(
-    24,
-    UserCreationParam.Color(200, 200, 200),
-    UserCreationParam.Color(100, 200, 100)
-  )
 
-  val faiUserCreationParam = UserCreationParam(
-    24,
-    UserCreationParam.Color(300, 200, 200),
-    UserCreationParam.Color(100, 200, 100)
-  )
-
-  val user: User = UserCreationParamValidatorImpl1(okUserCreationParam)
-    .getOrElse(sys.error("fail"))
-  val userList = User.userG.to(user)
-
-  def validateAge() = {
-//    val symbol = Symbol("age")
-    val age = userList.get(Symbol("age"))
-    (age)
-  }
-
-  val fields = Keys[User.userG.Repr].apply.toList[Symbol]
-  println(fields)
-  println(validateAge())
-}
-
-object Sample {
+object Main {
   case class Input(age: Int)
   case class DoubleInput(age1: Int, age2: Int)
 
   class Age private (private val number: Int) {
     require(number >= 0, "年齢は0以上じゃないとあかんな")
   }
-
-  def fieldOf[T](field: => T): (T, String) = ???
 
   object Age {
     def validate(n: Int): Either[ValidationFailure, Age] = {
@@ -56,33 +23,9 @@ object Sample {
     }
   }
 
-  implicit class Tuple2Ops[F, S](tup: (F, S)) {
-    def applyAndJoin[F2, S2](func1: (F => F2))(
-        func2: (F2 => S => S2)
-    ): S2 = {
-      func2(func1(tup._1))(tup._2)
-    }
-  }
-
-
   def main(args: Array[String]) {
     val input = DoubleInput(age1 = -1, age2 = 10)
-//
-//    val (age1Value, fieldName) = fieldOf(input.age1)
-//    Age.validate(age1Value).left.map(_.occurredOn(fieldName))
-
-//    fieldOf(input.age1).applyAndJoin(Age.validate) { result => fieldName =>
-//      result.occurredOn(fieldName)
-//    }
-//
-//    val a = fieldOf(input.age1).applyAndJoin(Age.validate)(_.occurredOn)
-
     println(Field.of(input.age1).validate(Age.validate))
 
-//    val result = for {
-//      age1 <- Age.validate(input.age1).left.map(_.occurredOn("age1"))
-//      age2 <- Age.validate(input.age2).left.map(_.occurredOn("age2"))
-//    } yield (age1, age2)
-//    println(result)
   }
 }
