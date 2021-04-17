@@ -1,10 +1,29 @@
 
-import field_of.Field.ValidationFailure
 import field_of.Field
 
 import scala.util.{Failure, Success, Try}
 
 object Main {
+  case class ValidationFailure(message: String, fields: Seq[String] = Nil) {
+    def occurredOn(field: String): ValidationFailure = copy(fields = fields :+ field)
+  }
+
+  type ValidationResult[T] = Either[ValidationFailure, T]
+  type Validator[I, O] = I => ValidationResult[O]
+
+  implicit class ValidationResultOps[T](e: ValidationResult[T]) {
+    def occurredOn(field: String): ValidationResult[T] = {
+      e.left.map(_.occurredOn(field))
+    }
+  }
+
+  implicit class ValidatableField[E](val field: Field[E]) extends AnyVal {
+    def validate[O](
+                     validator: Validator[E, O]
+                   ): ValidationResult[O] =
+      validator(field.value).occurredOn(field.name)
+  }
+
   case class Input(age: Int)
   case class DoubleInput(age1: Int, age2: Int)
 
