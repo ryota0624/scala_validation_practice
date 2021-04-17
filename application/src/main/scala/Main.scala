@@ -1,8 +1,7 @@
 
-import field_of.Field
 
 import scala.util.{Failure, Success, Try}
-
+import com.github.ryota0624.field.Field
 object Main {
   case class ValidationFailure(message: String, fields: Seq[String] = Nil) {
     def occurredOn(field: String): ValidationFailure = copy(fields = fields :+ field)
